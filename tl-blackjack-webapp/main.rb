@@ -8,10 +8,14 @@ set :sessions, true
 
 BLACKJACK_AMOUNT = 21
 DEALER_HIT_MIN = 17
+INITIAL_POT_TOTAL = 500
 
 # Define the helper methods
 helpers do
-  
+  def player_bet_total
+  	INITIAL_BET_TOTAL - session[:player_bet_value]
+  end
+
   def calculate_total(cards) # [['Suit','Rank'],['Suit','Rank'],...]
 
 	  arr = cards.map{ |e| e[1] }
@@ -64,12 +68,14 @@ helpers do
 		@success = "<strong>#{session[:player_name]} wins!</strong> #{msg}"
 		@show_hit_or_stay_buttons = false
 		@show_play_again_button = true
+    session[:player_pot] += session[:player_bet_amount] 
 	end
 
 	def loser!(msg)
 		@error = "<strong>#{session[:player_name]} loses!</strong> #{msg}"
 		@show_hit_or_stay_buttons = false
 		@show_play_again_button = true
+    session[:player_pot] -= session[:player_bet_amount] 
 	end
 
 	def tie!(msg)
@@ -89,7 +95,7 @@ end
 get '/' do
 	
 	if session[:player_name]
-		redirect '/game'
+		redirect '/bet'
 	else
 		redirect '/new_player'
 	end
@@ -97,13 +103,13 @@ get '/' do
 end
 
 get '/new_player' do
+  session[:player_pot] = INITIAL_POT_TOTAL
+  @first_round = true
 	erb :new_player
 end
 
 post '/new_player' do
-  #binding.pry
   #session hash (limit of 4KB)
-  
   if params[:player_name].empty?
   	@error = "Name is required!"
   	halt erb :new_player
@@ -111,7 +117,36 @@ post '/new_player' do
 
   session[:player_name] = params[:player_name] #param's from url parameters, name of input in erb file
 
-  redirect '/game'
+  redirect '/bet'
+end
+
+get '/bet' do
+  
+  session[:player_bet_amount] = nil
+
+  if session[:player_name].empty?
+    redirect '/new_player'
+  end
+  
+  erb :bet
+end
+
+post '/bet' do
+
+  if params[:player_bet_amount].nil?
+    @error = "Bet amount must be a real number"
+    #binding.pry
+    halt erb :bet
+  elsif params[:player_bet_amount].to_i <= 0
+    @error = "Bet amount must be greater than 0"
+    halt erb :bet
+  elsif params[:player_bet_amount].to_i > session[:player_pot]
+    @error = "Bet amount must be less than what you have in the pot. You currenly have $#{session[:player_pot]} in the pot."
+    halt erb :bet
+  else # happy path
+    session[:player_bet_amount] = params[:player_bet_amount].to_i
+    redirect '/game'
+  end
 end
 
 get '/game' do

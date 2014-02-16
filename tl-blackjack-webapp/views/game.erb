@@ -7,8 +7,8 @@
 <p>
 <% if @show_play_again_button %>
   <strong>Would you like to play again?</strong>
-  <a href="/game" class="btn btn-primary">Yes</a>
-   <a href="/game_over" class="btn ">No</a>
+  <a href="/bet" class="btn btn-primary">Yes</a>
+  <a href="/game_over" class="btn ">No</a>
 <% end %>
 </p>
 
@@ -41,6 +41,7 @@
     <%= card_image(card) %>
   <% end %>
   <h5><%= session[:player_name] %>'s total is <%= calculate_total(session[:player_cards]) %></h5>
+  <h5><%= session[:player_name] %> has pot total of $<%= session[:player_pot] %> and bet $<%= session[:player_bet_amount]%> this round</h5>
 </div>
 
 <p>
