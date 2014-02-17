@@ -12,10 +12,7 @@ INITIAL_POT_TOTAL = 500
 
 # Define the helper methods
 helpers do
-  def player_bet_total
-  	INITIAL_BET_TOTAL - session[:player_bet_value]
-  end
-
+ 
   def calculate_total(cards) # [['Suit','Rank'],['Suit','Rank'],...]
 
 	  arr = cards.map{ |e| e[1] }
@@ -65,21 +62,21 @@ helpers do
 	end
 
 	def winner!(msg)
-		@success = "<strong>#{session[:player_name]} wins!</strong> #{msg}"
+		@winner = "<strong>#{session[:player_name]} wins!</strong> #{msg}"
 		@show_hit_or_stay_buttons = false
 		@show_play_again_button = true
     session[:player_pot] += session[:player_bet_amount] 
 	end
 
 	def loser!(msg)
-		@error = "<strong>#{session[:player_name]} loses!</strong> #{msg}"
+		@loser = "<strong>#{session[:player_name]} loses!</strong> #{msg}"
 		@show_hit_or_stay_buttons = false
 		@show_play_again_button = true
     session[:player_pot] -= session[:player_bet_amount] 
 	end
 
 	def tie!(msg)
-		@success = "<strong>It's a tie!</strong> #{msg}"
+		@winner = "<strong>It's a tie!</strong> #{msg}"
 		@show_play_again_button = true
 	end
 
@@ -198,6 +195,7 @@ post '/game/player/stay' do
 	@success = "#{session[:player_name]} has chosen to stay."
 	@show_hit_or_stay_buttons = false
 	redirect '/game/dealer'
+  
 end
 
 get '/game/dealer' do
@@ -220,7 +218,7 @@ get '/game/dealer' do
 		@show_dealer_hit_button = true
 	end
 
-	erb :game
+	erb :game, layout: false
 
 end
 
@@ -238,7 +236,7 @@ get '/game/compare' do
 		tie!("Both #{session[:player_name]} and the dealer stayed at #{dealer_total}")
 	end
 
-	erb :game
+	erb :game, layout: false
 
 end
 

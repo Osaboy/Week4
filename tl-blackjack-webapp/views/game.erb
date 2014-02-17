@@ -1,4 +1,12 @@
 <div id='game'>
+
+<%if @loser %>
+  <div class="alert alert-error"><%=@loser%></div>
+<% end %>
+<%if @winner %>
+  <div class="alert alert-success"><%=@winner%></div>
+<% end %>
+
 <h2>BlackJack</h2>
 <h4>Welcome <%= session[:player_name] %></h4>
 
@@ -35,7 +43,6 @@
 <p>
 
 <div class = "well" id = "player_area">
-  <a id='player_color' href ='#'>Change it to yellow</a>
   <h4><%= session[:player_name] %> cards are:</h4>
   <% session[:player_cards].each do |card| %>
     <%= card_image(card) %>
